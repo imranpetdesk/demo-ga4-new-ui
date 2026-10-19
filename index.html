@@ -29,8 +29,36 @@
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
 
-    <button id="test-ga-button" type="button">Test GA Button (via script)</button>
-    <button id="test-ga-button-1" type="button">Test GA Button 1 (via gtm)</button>
+    <section>
+        <button id="test-ga-button" type="button">Test GA Button (via script)</button>
+        <button id="test-ga-button-1" type="button">Test GA Button 1 (via gtm)</button>
+    </section>
+
+    <!-- STart web component -->
+    <section>
+        <script>
+            class TestGaWebComponent extends HTMLElement {
+                constructor() {
+                    super();
+                    const shadow = this.attachShadow({ mode: 'open' });
+                    shadow.innerHTML = [
+                        '<h2>Web component</h2>',
+                        '<button id="test-ga-web-component-button" type="button">Test GA web component button (via script)</button>',
+                        '<button id="test-ga-web-component-button-1" type="button">Test GA web component button 1 (via gtm)</button>',
+                    ].join('');
+
+                    shadow.getElementById('test-ga-web-component-button').addEventListener('click', function () {
+                        gtag('event', 'test_ga_web_component_button_click', {
+                            button_id: 'test-ga-web-component-button'
+                        });
+                    });
+                }
+            }
+            customElements.define('test-ga-web-component', TestGaWebComponent);
+        </script>
+        <test-ga-web-component></test-ga-web-component>
+    </section>
+    <!-- End web component -->
 
     <!-- Using Google tag (Google Analytics 4) -->
     <script>
