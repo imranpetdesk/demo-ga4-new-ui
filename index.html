@@ -138,16 +138,23 @@
                         });
                     });
 
-                    shadow.querySelector('.steps').addEventListener('click', function (event) {
-                        const button = event.target.closest('button.step');
-                        if (!button) {
-                            return;
-                        }
+                    function pushStepClick(event, buttonId) {
+                        event.stopPropagation();
                         window.dataLayer = window.dataLayer || [];
                         window.dataLayer.push({
                             event: 'wc_step_button_click',
-                            button_id: button.id
+                            button_id: buttonId
                         });
+                    }
+
+                    shadow.getElementById('test-wc-button-step-one').addEventListener('click', function (event) {
+                        pushStepClick(event, 'test-wc-button-step-one');
+                    });
+                    shadow.getElementById('test-wc-button-step-two').addEventListener('click', function (event) {
+                        pushStepClick(event, 'test-wc-button-step-two');
+                    });
+                    shadow.getElementById('test-wc-button-step-three').addEventListener('click', function (event) {
+                        pushStepClick(event, 'test-wc-button-step-three');
                     });
                 }
             }
