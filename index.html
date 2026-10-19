@@ -11,11 +11,34 @@
         gtag('config', 'G-3QJFC6QSL8');
     </script>
 
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-KCC8CQ4V');</script>
+    <!-- End Google Tag Manager -->
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>demo ga4 new ui</title>    
 </head>
 <body>
-    <button id="test-ga-button">Test GA Button</button>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KCC8CQ4V"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <button id="test-ga-button" type="button">Test GA Button (via script)</button>
+    <button id="test-ga-button-1" type="button">Test GA Button 1 (via gtm)</button>
+
+    <!-- Using Google tag (Google Analytics 4) -->
+    <script>
+        document.getElementById('test-ga-button').addEventListener('click', function () {
+            gtag('event', 'test_ga_button_click', {
+                button_id: 'test-ga-button'
+            });
+        });
+    </script>
 </body>
 </html>
