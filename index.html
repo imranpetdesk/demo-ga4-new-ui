@@ -87,6 +87,14 @@
         test-ga-web-component {
             display: block;
         }
+
+        #test-iframe {
+            display: block;
+            width: 100%;
+            height: 120px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
     </style>
 </head>
 <body>
@@ -96,7 +104,7 @@
     <!-- End Google Tag Manager (noscript) -->
 
     <h1>GA4 demo</h1>
-    <p class="subtitle">Page buttons vs web component</p>
+    <p class="subtitle">Page buttons vs web component vs iframe</p>
 
     <section>
         <h2>Page buttons</h2>
@@ -123,7 +131,6 @@
                         '</style>',
                         '<h2>Web component</h2>',
                         '<button id="test-wc-button" type="button">WC button (via script)</button>',
-                        '<slot name="gtm-button"></slot>',
                         '<button id="test-wc-button-2" type="button">WC button 2 (via gtm)</button>',
                         '<div class="steps">',
                         '<button id="test-wc-button-step-one" class="step" type="button">WC step one (via gtm)</button>',
@@ -131,40 +138,18 @@
                         '<button id="test-wc-button-step-three" class="step" type="button">WC step three (via gtm)</button>',
                         '</div>',
                     ].join('');
-
-                    shadow.getElementById('test-wc-button').addEventListener('click', function () {
-                        gtag('event', 'test_wc_button_click', {
-                            button_id: 'test-wc-button'
-                        });
-                    });
-
-                    function pushStepClick(event, buttonId) {
-                        event.stopPropagation();
-                        window.dataLayer = window.dataLayer || [];
-                        window.dataLayer.push({
-                            event: 'wc_step_button_click',
-                            button_id: buttonId
-                        });
-                    }
-
-                    shadow.getElementById('test-wc-button-step-one').addEventListener('click', function (event) {
-                        pushStepClick(event, 'test-wc-button-step-one');
-                    });
-                    shadow.getElementById('test-wc-button-step-two').addEventListener('click', function (event) {
-                        pushStepClick(event, 'test-wc-button-step-two');
-                    });
-                    shadow.getElementById('test-wc-button-step-three').addEventListener('click', function (event) {
-                        pushStepClick(event, 'test-wc-button-step-three');
-                    });
                 }
             }
             customElements.define('test-ga-web-component', TestGaWebComponent);
         </script>
-        <test-ga-web-component>
-            <button id="test-wc-button-1" type="button" slot="gtm-button">WC button 1 (via gtm)</button>
-        </test-ga-web-component>
+        <test-ga-web-component></test-ga-web-component>
     </section>
     <!-- End web component -->
+
+    <section>
+        <h2>Iframe</h2>
+        <iframe id="test-iframe" title="Iframe buttons"></iframe>
+    </section>
 
     <!-- Using Google tag (Google Analytics 4) -->
     <script>
@@ -173,6 +158,32 @@
                 button_id: 'test-host-button'
             });
         });
+
+        var testIframe = document.getElementById('test-iframe');
+        testIframe.addEventListener('load', function () {
+            testIframe.contentDocument.getElementById('test-iframe-button').addEventListener('click', function () {
+                gtag('event', 'test_iframe_button_click', {
+                    button_id: 'test-iframe-button'
+                });
+            });
+        });
+        testIframe.srcdoc = [
+            '<style>',
+            'body { margin: 0; font-family: system-ui, sans-serif; }',
+            'button { appearance: none; border: 0; border-radius: 8px; padding: 10px 14px; margin: 0 8px 8px 0; background: #1a73e8; color: #fff; font: inherit; cursor: pointer; }',
+            'button:hover { background: #1558b0; }',
+            '.steps { margin-top: 8px; }',
+            'button.step { background: #0f9d58; }',
+            'button.step:hover { background: #0b7a44; }',
+            '</style>',
+            '<button id="test-iframe-button" type="button">Iframe button (via script)</button>',
+            '<button id="test-iframe-button-2" type="button">Iframe button 2 (via gtm)</button>',
+            '<div class="steps">',
+            '<button id="test-iframe-button-step-one" class="step" type="button">Iframe step one (via gtm)</button>',
+            '<button id="test-iframe-button-step-two" class="step" type="button">Iframe step two (via gtm)</button>',
+            '<button id="test-iframe-button-step-three" class="step" type="button">Iframe step three (via gtm)</button>',
+            '</div>',
+        ].join('');
     </script>
 </body>
 </html>

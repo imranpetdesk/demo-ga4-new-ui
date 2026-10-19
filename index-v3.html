@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-3QJFC6QSL8"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-3QJFC6QSL8');
+    </script>
+
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-KCC8CQ4V');</script>
+    <!-- End Google Tag Manager -->
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>demo ga4 new ui</title>
+    <style>
+        :root {
+            --bg: #f3f5f8;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --accent: #1a73e8;
+            --accent-hover: #1558b0;
+            --border: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 32px 20px;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 1.5rem;
+        }
+
+        .subtitle {
+            margin: 0 0 24px;
+            color: var(--muted);
+        }
+
+        section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        section h2 {
+            margin: 0 0 14px;
+            font-size: 1.1rem;
+        }
+
+        button {
+            appearance: none;
+            border: 0;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin: 0 8px 8px 0;
+            background: var(--accent);
+            color: #fff;
+            font: inherit;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: var(--accent-hover);
+        }
+
+        test-ga-web-component {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KCC8CQ4V"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <h1>GA4 demo</h1>
+    <p class="subtitle">Page buttons vs web component</p>
+
+    <section>
+        <h2>Page buttons</h2>
+        <button id="test-host-button" type="button">Host Button (via script)</button>
+        <button id="test-host-button-1" type="button">Host Button 1 (via gtm)</button>
+    </section>
+
+    <!-- STart web component -->
+    <section>
+        <script>
+            class TestGaWebComponent extends HTMLElement {
+                constructor() {
+                    super();
+                    const shadow = this.attachShadow({ mode: 'open' });
+                    shadow.innerHTML = [
+                        '<style>',
+                        ':host { display: block; }',
+                        'h2 { margin: 0 0 14px; font-size: 1.1rem; color: #1f2937; }',
+                        'button { appearance: none; border: 0; border-radius: 8px; padding: 10px 14px; margin: 0 8px 8px 0; background: #1a73e8; color: #fff; font: inherit; cursor: pointer; }',
+                        'button:hover { background: #1558b0; }',
+                        '.steps { margin-top: 8px; }',
+                        'button.step { background: #0f9d58; }',
+                        'button.step:hover { background: #0b7a44; }',
+                        '</style>',
+                        '<h2>Web component</h2>',
+                        '<button id="test-wc-button" type="button">WC button (via script)</button>',
+                        '<slot name="gtm-button"></slot>',
+                        '<button id="test-wc-button-2" type="button">WC button 2 (via gtm)</button>',
+                        '<div class="steps">',
+                        '<button id="test-wc-button-step-one" class="step" type="button">WC step one (via gtm)</button>',
+                        '<button id="test-wc-button-step-two" class="step" type="button">WC step two (via gtm)</button>',
+                        '<button id="test-wc-button-step-three" class="step" type="button">WC step three (via gtm)</button>',
+                        '</div>',
+                    ].join('');
+
+                    shadow.getElementById('test-wc-button').addEventListener('click', function () {
+                        gtag('event', 'test_wc_button_click', {
+                            button_id: 'test-wc-button'
+                        });
+                    });
+
+                    function pushStepClick(event, buttonId) {
+                        event.stopPropagation();
+                        window.dataLayer = window.dataLayer || [];
+                        window.dataLayer.push({
+                            event: 'wc_step_button_click',
+                            button_id: buttonId
+                        });
+                    }
+
+                    shadow.getElementById('test-wc-button-step-one').addEventListener('click', function (event) {
+                        pushStepClick(event, 'test-wc-button-step-one');
+                    });
+                    shadow.getElementById('test-wc-button-step-two').addEventListener('click', function (event) {
+                        pushStepClick(event, 'test-wc-button-step-two');
+                    });
+                    shadow.getElementById('test-wc-button-step-three').addEventListener('click', function (event) {
+                        pushStepClick(event, 'test-wc-button-step-three');
+                    });
+                }
+            }
+            customElements.define('test-ga-web-component', TestGaWebComponent);
+        </script>
+        <test-ga-web-component>
+            <button id="test-wc-button-1" type="button" slot="gtm-button">WC button 1 (via gtm)</button>
+        </test-ga-web-component>
+    </section>
+    <!-- End web component -->
+
+    
+
+    <!-- Using Google tag (Google Analytics 4) -->
+    <script>
+        document.getElementById('test-host-button').addEventListener('click', function () {
+            gtag('event', 'test_host_button_click', {
+                button_id: 'test-host-button'
+            });
+        });
+    </script>
+</body>
+</html>
