@@ -21,7 +21,73 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>demo ga4 new ui</title>    
+    <title>demo ga4 new ui</title>
+    <style>
+        :root {
+            --bg: #f3f5f8;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --accent: #1a73e8;
+            --accent-hover: #1558b0;
+            --border: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 32px 20px;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 1.5rem;
+        }
+
+        .subtitle {
+            margin: 0 0 24px;
+            color: var(--muted);
+        }
+
+        section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        section h2 {
+            margin: 0 0 14px;
+            font-size: 1.1rem;
+        }
+
+        button {
+            appearance: none;
+            border: 0;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin: 0 8px 8px 0;
+            background: var(--accent);
+            color: #fff;
+            font: inherit;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: var(--accent-hover);
+        }
+
+        test-ga-web-component {
+            display: block;
+        }
+    </style>
 </head>
 <body>
     <!-- Google Tag Manager (noscript) -->
@@ -29,9 +95,13 @@
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
 
+    <h1>GA4 demo</h1>
+    <p class="subtitle">Page buttons vs web component</p>
+
     <section>
-        <button id="test-ga-button" type="button">Test GA Button (via script)</button>
-        <button id="test-ga-button-1" type="button">Test GA Button 1 (via gtm)</button>
+        <h2>Page buttons</h2>
+        <button id="test-host-button" type="button">Host Button (via script)</button>
+        <button id="test-host-button-1" type="button">Host Button 1 (via gtm)</button>
     </section>
 
     <!-- STart web component -->
@@ -42,14 +112,20 @@
                     super();
                     const shadow = this.attachShadow({ mode: 'open' });
                     shadow.innerHTML = [
+                        '<style>',
+                        ':host { display: block; }',
+                        'h2 { margin: 0 0 14px; font-size: 1.1rem; color: #1f2937; }',
+                        'button { appearance: none; border: 0; border-radius: 8px; padding: 10px 14px; margin: 0 8px 8px 0; background: #1a73e8; color: #fff; font: inherit; cursor: pointer; }',
+                        'button:hover { background: #1558b0; }',
+                        '</style>',
                         '<h2>Web component</h2>',
-                        '<button id="test-ga-web-component-button" type="button">Test GA web component button (via script)</button>',
+                        '<button id="test-wc-button" type="button">WC button (via script)</button>',
                         '<slot name="gtm-button"></slot>'
                     ].join('');
 
-                    shadow.getElementById('test-ga-web-component-button').addEventListener('click', function () {
-                        gtag('event', 'test_ga_web_component_button_click', {
-                            button_id: 'test-ga-web-component-button'
+                    shadow.getElementById('test-wc-button').addEventListener('click', function () {
+                        gtag('event', 'test_wc_button_click', {
+                            button_id: 'test-wc-button'
                         });
                     });
                 }
@@ -57,16 +133,16 @@
             customElements.define('test-ga-web-component', TestGaWebComponent);
         </script>
         <test-ga-web-component>
-            <button id="test-ga-web-component-button-1" type="button" slot="gtm-button">Test GA web component button 1 (via gtm)</button>
+            <button id="test-wc-button-1" type="button" slot="gtm-button">WC button 1 (via gtm)</button>
         </test-ga-web-component>
     </section>
     <!-- End web component -->
 
     <!-- Using Google tag (Google Analytics 4) -->
     <script>
-        document.getElementById('test-ga-button').addEventListener('click', function () {
-            gtag('event', 'test_ga_button_click', {
-                button_id: 'test-ga-button'
+        document.getElementById('test-host-button').addEventListener('click', function () {
+            gtag('event', 'test_host_button_click', {
+                button_id: 'test-host-button'
             });
         });
     </script>
