@@ -84,6 +84,14 @@
             background: var(--accent-hover);
         }
 
+        button.postmessage {
+            background: #7c3aed;
+        }
+
+        button.postmessage:hover {
+            background: #6d28d9;
+        }
+
         test-ga-web-component {
             display: block;
         }
@@ -91,7 +99,7 @@
         #test-iframe {
             display: block;
             width: 100%;
-            height: 120px;
+            height: 160px;
             border: 1px solid var(--border);
             border-radius: 8px;
         }
@@ -106,11 +114,37 @@
     <h1>GA4 demo</h1>
     <p class="subtitle">Page buttons vs web component vs iframe</p>
 
+    <!-- Start host page -->
     <section>
         <h2>Page buttons</h2>
         <button id="test-host-button" type="button">Host Button (via script)</button>
         <button id="test-host-button-1" type="button">Host Button 1 (via gtm)</button>
+        <button id="test-host-postmessage" class="postmessage" type="button">Host to iframe (postMessage)</button>
+        <button id="test-host-wc-postmessage" class="postmessage" type="button">Host to web component (postMessage)</button>
+
+        <!-- Using Google tag (Google Analytics 4) -->
+        <script>
+            var testIframe = document.getElementById('test-iframe');
+
+            // Host button click event
+            document.getElementById('test-host-button').addEventListener('click', function () {
+                gtag('event', 'test_host_button_click', {
+                    button_id: 'test-host-button'
+                });
+            });
+
+            document.getElementById('test-host-postmessage').addEventListener('click', function () {
+                testIframe.contentWindow.postMessage({
+                    source: 'host',
+                    event: 'test_host_postmessage',
+                    button_id: 'test-host-postmessage'
+                }, '*');
+                console.log('host dataLayer', window.dataLayer);
+            });
+        </script>
     </section>
+    <!-- End host page -->
+    
 
     <!-- STart web component -->
     <section>
@@ -128,16 +162,56 @@
                         '.steps { margin-top: 8px; }',
                         'button.step { background: #0f9d58; }',
                         'button.step:hover { background: #0b7a44; }',
+                        'button.postmessage { background: #7c3aed; }',
+                        'button.postmessage:hover { background: #6d28d9; }',
                         '</style>',
                         '<h2>Web component</h2>',
                         '<button id="test-wc-button" type="button">WC button (via script)</button>',
                         '<button id="test-wc-button-2" type="button">WC button 2 (via gtm)</button>',
+                        '<button id="test-wc-postmessage" class="postmessage" type="button">WC to host (postMessage)</button>',
                         '<div class="steps">',
                         '<button id="test-wc-button-step-one" class="step" type="button">WC step one (via gtm)</button>',
                         '<button id="test-wc-button-step-two" class="step" type="button">WC step two (via gtm)</button>',
                         '<button id="test-wc-button-step-three" class="step" type="button">WC step three (via gtm)</button>',
                         '</div>',
                     ].join('');
+
+                    shadow.getElementById('test-wc-postmessage').addEventListener('click', function () {
+                        window.postMessage({
+                            source: 'webcomponent',
+                            event: 'test_wc_postmessage',
+                            button_id: 'test-wc-postmessage'
+                        }, '*');
+                    });
+
+                    document.getElementById('test-host-wc-postmessage').addEventListener('click', function () {
+                        window.postMessage({
+                            source: 'host',
+                            target: 'webcomponent',
+                            event: 'test_host_wc_postmessage',
+                            button_id: 'test-host-wc-postmessage'
+                        }, '*');
+                        console.log('host dataLayer', window.dataLayer);
+                    });
+
+                    window.addEventListener('message', function (event) {
+                        if (!event.data) {
+                            return;
+                        }
+                        if (event.data.source === 'webcomponent') {
+                            window.dataLayer = window.dataLayer || [];
+                            window.dataLayer.push({
+                                event: event.data.event,
+                                button_id: event.data.button_id
+                            });
+                            console.log('web component sent data to dataLayer:', event.data);
+                            return;
+                        }
+                        if (event.data.source !== 'host' || event.data.target !== 'webcomponent') {
+                            return;
+                        }
+                        console.log('web component received', event.data);
+                    });
                 }
             }
             customElements.define('test-ga-web-component', TestGaWebComponent);
@@ -146,44 +220,59 @@
     </section>
     <!-- End web component -->
 
+
+    <!-- Start Iframe -->
     <section>
         <h2>Iframe</h2>
         <iframe id="test-iframe" title="Iframe buttons"></iframe>
+
+        <script>
+            var testIframe = document.getElementById('test-iframe');
+
+            testIframe.srcdoc = [
+                '<style>',
+                'body { margin: 0; font-family: system-ui, sans-serif; }',
+                'button { appearance: none; border: 0; border-radius: 8px; padding: 10px 14px; margin: 0 8px 8px 0; background: #1a73e8; color: #fff; font: inherit; cursor: pointer; }',
+                'button:hover { background: #1558b0; }',
+                '.steps { margin-top: 8px; }',
+                'button.step { background: #0f9d58; }',
+                'button.step:hover { background: #0b7a44; }',
+                'button.postmessage { background: #7c3aed; }',
+                'button.postmessage:hover { background: #6d28d9; }',
+                '</style>',
+                '<button id="test-iframe-button" type="button">Iframe button (via script)</button>',
+                '<button id="test-iframe-button-2" type="button">Iframe button 2 (via gtm)</button>',
+                '<button id="test-iframe-postmessage" class="postmessage" type="button">Iframe to host (postMessage)</button>',
+                '<div class="steps">',
+                '<button id="test-iframe-button-step-one" class="step" type="button">Iframe step one (via gtm)</button>',
+                '<button id="test-iframe-button-step-two" class="step" type="button">Iframe step two (via gtm)</button>',
+                '<button id="test-iframe-button-step-three" class="step" type="button">Iframe step three (via gtm)</button>',
+                '</div>',
+                '<script>',
+                'document.getElementById("test-iframe-button").addEventListener("click", function () {',
+                '  parent.gtag("event", "test_iframe_button_click", { button_id: "test-iframe-button" });',
+                '});',
+                'document.getElementById("test-iframe-postmessage").addEventListener("click", function () {',
+                '  var payload = { source: "iframe", event: "test_iframe_postmessage", button_id: "test-iframe-postmessage" };',
+                '  parent.postMessage(payload, "*");',
+                '  window.postMessage(payload, "*");',
+                '});',
+                'window.addEventListener("message", function (event) {',
+                '  if (!event.data) return;',
+                '  if (event.data.source === "iframe") {',
+                '    parent.dataLayer = parent.dataLayer || [];',
+                '    parent.dataLayer.push({ event: event.data.event, button_id: event.data.button_id });',
+                '    console.log("iframe sent data to dataLayer:", event.data);',
+                '    return;',
+                '  }',
+                '  if (event.data.source !== "host") return;',
+                '  console.log("iframe received", event.data);',
+                '});',
+                '<\/script>',
+            ].join('');
+        </script>
     </section>
-
-    <!-- Using Google tag (Google Analytics 4) -->
-    <script>
-        document.getElementById('test-host-button').addEventListener('click', function () {
-            gtag('event', 'test_host_button_click', {
-                button_id: 'test-host-button'
-            });
-        });
-
-        var testIframe = document.getElementById('test-iframe');
-        testIframe.addEventListener('load', function () {
-            testIframe.contentDocument.getElementById('test-iframe-button').addEventListener('click', function () {
-                gtag('event', 'test_iframe_button_click', {
-                    button_id: 'test-iframe-button'
-                });
-            });
-        });
-        testIframe.srcdoc = [
-            '<style>',
-            'body { margin: 0; font-family: system-ui, sans-serif; }',
-            'button { appearance: none; border: 0; border-radius: 8px; padding: 10px 14px; margin: 0 8px 8px 0; background: #1a73e8; color: #fff; font: inherit; cursor: pointer; }',
-            'button:hover { background: #1558b0; }',
-            '.steps { margin-top: 8px; }',
-            'button.step { background: #0f9d58; }',
-            'button.step:hover { background: #0b7a44; }',
-            '</style>',
-            '<button id="test-iframe-button" type="button">Iframe button (via script)</button>',
-            '<button id="test-iframe-button-2" type="button">Iframe button 2 (via gtm)</button>',
-            '<div class="steps">',
-            '<button id="test-iframe-button-step-one" class="step" type="button">Iframe step one (via gtm)</button>',
-            '<button id="test-iframe-button-step-two" class="step" type="button">Iframe step two (via gtm)</button>',
-            '<button id="test-iframe-button-step-three" class="step" type="button">Iframe step three (via gtm)</button>',
-            '</div>',
-        ].join('');
-    </script>
+    <!-- End Iframe -->
+    
 </body>
 </html>
