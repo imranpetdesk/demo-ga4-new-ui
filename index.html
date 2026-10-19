@@ -117,15 +117,36 @@
                         'h2 { margin: 0 0 14px; font-size: 1.1rem; color: #1f2937; }',
                         'button { appearance: none; border: 0; border-radius: 8px; padding: 10px 14px; margin: 0 8px 8px 0; background: #1a73e8; color: #fff; font: inherit; cursor: pointer; }',
                         'button:hover { background: #1558b0; }',
+                        '.steps { margin-top: 8px; }',
+                        'button.step { background: #0f9d58; }',
+                        'button.step:hover { background: #0b7a44; }',
                         '</style>',
                         '<h2>Web component</h2>',
                         '<button id="test-wc-button" type="button">WC button (via script)</button>',
-                        '<slot name="gtm-button"></slot>'
+                        '<slot name="gtm-button"></slot>',
+                        '<button id="test-wc-button-2" type="button">WC button 2 (via gtm)</button>',
+                        '<div class="steps">',
+                        '<button id="test-wc-button-step-one" class="step" type="button">WC step one (via gtm)</button>',
+                        '<button id="test-wc-button-step-two" class="step" type="button">WC step two (via gtm)</button>',
+                        '<button id="test-wc-button-step-three" class="step" type="button">WC step three (via gtm)</button>',
+                        '</div>',
                     ].join('');
 
                     shadow.getElementById('test-wc-button').addEventListener('click', function () {
                         gtag('event', 'test_wc_button_click', {
                             button_id: 'test-wc-button'
+                        });
+                    });
+
+                    shadow.querySelector('.steps').addEventListener('click', function (event) {
+                        const button = event.target.closest('button.step');
+                        if (!button) {
+                            return;
+                        }
+                        window.dataLayer = window.dataLayer || [];
+                        window.dataLayer.push({
+                            event: 'wc_step_button_click',
+                            button_id: button.id
                         });
                     });
                 }
