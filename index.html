@@ -119,27 +119,15 @@
         <h2>Page buttons</h2>
         <button id="test-host-button" type="button">Host Button (via script)</button>
         <button id="test-host-button-1" type="button">Host Button 1 (via gtm)</button>
-        <button id="test-host-postmessage" class="postmessage" type="button">Host to iframe (postMessage)</button>
+        <button id="test-host-iframe-postmessage" class="postmessage" type="button">Host to iframe (postMessage)</button>
         <button id="test-host-wc-postmessage" class="postmessage" type="button">Host to web component (postMessage)</button>
 
         <!-- Using Google tag (Google Analytics 4) -->
         <script>
-            var testIframe = document.getElementById('test-iframe');
-
-            // Host button click event
             document.getElementById('test-host-button').addEventListener('click', function () {
                 gtag('event', 'test_host_button_click', {
                     button_id: 'test-host-button'
                 });
-            });
-
-            document.getElementById('test-host-postmessage').addEventListener('click', function () {
-                testIframe.contentWindow.postMessage({
-                    source: 'host',
-                    event: 'test_host_postmessage',
-                    button_id: 'test-host-postmessage'
-                }, '*');
-                console.log('host dataLayer', window.dataLayer);
             });
         </script>
     </section>
@@ -177,34 +165,38 @@
                     ].join('');
 
                     shadow.getElementById('test-wc-postmessage').addEventListener('click', function () {
-                        window.postMessage({
+                        var payload = {
                             source: 'webcomponent',
                             event: 'test_wc_postmessage',
                             button_id: 'test-wc-postmessage'
-                        }, '*');
+                        };
+                        window.postMessage(payload, '*');
+                        window.dataLayer = window.dataLayer || [];
+                        window.dataLayer.push({
+                            event: payload.event,
+                            button_id: payload.button_id
+                        });
+                        console.log('web component sent data to dataLayer:', payload);
                     });
 
                     document.getElementById('test-host-wc-postmessage').addEventListener('click', function () {
-                        window.postMessage({
+                        var payload = {
                             source: 'host',
                             target: 'webcomponent',
                             event: 'test_host_wc_postmessage',
                             button_id: 'test-host-wc-postmessage'
-                        }, '*');
+                        };
+                        window.postMessage(payload, '*');
+                        window.dataLayer = window.dataLayer || [];
+                        window.dataLayer.push({
+                            event: payload.event,
+                            button_id: payload.button_id
+                        });
                         console.log('host dataLayer', window.dataLayer);
                     });
 
                     window.addEventListener('message', function (event) {
-                        if (!event.data) {
-                            return;
-                        }
-                        if (event.data.source === 'webcomponent') {
-                            window.dataLayer = window.dataLayer || [];
-                            window.dataLayer.push({
-                                event: event.data.event,
-                                button_id: event.data.button_id
-                            });
-                            console.log('web component sent data to dataLayer:', event.data);
+                        if (!event.data || event.data.source === 'webcomponent') {
                             return;
                         }
                         if (event.data.source !== 'host' || event.data.target !== 'webcomponent') {
@@ -257,6 +249,13 @@
                 '  parent.postMessage(payload, "*");',
                 '  window.postMessage(payload, "*");',
                 '});',
+                'parent.document.getElementById("test-host-iframe-postmessage").addEventListener("click", function () {',
+                '  var payload = { source: "host", target: "iframe", event: "test_host_iframe_postmessage", button_id: "test-host-iframe-postmessage" };',
+                '  window.postMessage(payload, "*");',
+                '  parent.dataLayer = parent.dataLayer || [];',
+                '  parent.dataLayer.push({ event: payload.event, button_id: payload.button_id });',
+                '  console.log("host dataLayer", parent.dataLayer);',
+                '});',
                 'window.addEventListener("message", function (event) {',
                 '  if (!event.data) return;',
                 '  if (event.data.source === "iframe") {',
@@ -265,7 +264,7 @@
                 '    console.log("iframe sent data to dataLayer:", event.data);',
                 '    return;',
                 '  }',
-                '  if (event.data.source !== "host") return;',
+                '  if (event.data.source !== "host" || event.data.target !== "iframe") return;',
                 '  console.log("iframe received", event.data);',
                 '});',
                 '<\/script>',
