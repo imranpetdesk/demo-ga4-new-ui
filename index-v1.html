@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-3QJFC6QSL8"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-3QJFC6QSL8');
+    </script>
+
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','GTM-KCC8CQ4V');</script>
+    <!-- End Google Tag Manager -->
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>demo ga4 new ui</title>    
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KCC8CQ4V"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <section>
+        <button id="test-ga-button" type="button">Test GA Button (via script)</button>
+        <button id="test-ga-button-1" type="button">Test GA Button 1 (via gtm)</button>
+    </section>
+
+    <!-- STart web component -->
+    <section>
+        <script>
+            class TestGaWebComponent extends HTMLElement {
+                constructor() {
+                    super();
+                    const shadow = this.attachShadow({ mode: 'open' });
+                    shadow.innerHTML = [
+                        '<h2>Web component</h2>',
+                        '<button id="test-ga-web-component-button" type="button">Test GA web component button (via script)</button>',
+                        '<button id="test-ga-web-component-button-1" type="button">Test GA web component button 1 (via gtm)</button>',
+                    ].join('');
+
+                    shadow.getElementById('test-ga-web-component-button').addEventListener('click', function () {
+                        gtag('event', 'test_ga_web_component_button_click', {
+                            button_id: 'test-ga-web-component-button'
+                        });
+                    });
+                }
+            }
+            customElements.define('test-ga-web-component', TestGaWebComponent);
+        </script>
+        <test-ga-web-component></test-ga-web-component>
+    </section>
+    <!-- End web component -->
+
+    <!-- Using Google tag (Google Analytics 4) -->
+    <script>
+        document.getElementById('test-ga-button').addEventListener('click', function () {
+            gtag('event', 'test_ga_button_click', {
+                button_id: 'test-ga-button'
+            });
+        });
+    </script>
+</body>
+</html>

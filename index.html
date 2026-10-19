@@ -44,7 +44,7 @@
                     shadow.innerHTML = [
                         '<h2>Web component</h2>',
                         '<button id="test-ga-web-component-button" type="button">Test GA web component button (via script)</button>',
-                        '<button id="test-ga-web-component-button-1" type="button">Test GA web component button 1 (via gtm)</button>',
+                        '<slot name="gtm-button"></slot>'
                     ].join('');
 
                     shadow.getElementById('test-ga-web-component-button').addEventListener('click', function () {
@@ -56,7 +56,9 @@
             }
             customElements.define('test-ga-web-component', TestGaWebComponent);
         </script>
-        <test-ga-web-component></test-ga-web-component>
+        <test-ga-web-component>
+            <button id="test-ga-web-component-button-1" type="button" slot="gtm-button">Test GA web component button 1 (via gtm)</button>
+        </test-ga-web-component>
     </section>
     <!-- End web component -->
 
