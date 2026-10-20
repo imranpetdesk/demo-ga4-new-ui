@@ -163,6 +163,26 @@
                 console.log('Pushed to dataLayer:', window.dataLayer);
             });
 
+            // Listen for clicks on the host page and push to dataLayer if the clicked element is a button with a specific ID
+            document.addEventListener('click', function (event) {
+                var button = event.composedPath().find(function (node) {
+                    return node.id === 'test-wc-button-step-one' || node.id === 'test-wc-button-step-two';
+                });
+                if (!button) {
+                    return;
+                }
+                if (!window.dataLayer) {
+                    console.error('dataLayer is not defined');
+                    return;
+                }
+                window.dataLayer.push({
+                    event: 'wc_step_click',
+                    button_id: button.id,
+                    button_text: button.textContent,
+                });
+                console.log('host pushed wc step click', window.dataLayer);
+            });
+
             // Web component and iframe send a message. The host pushes it to the data layer.
             window.addEventListener('message', function (event) {
                 if (!event.data || event.data.source === 'host') {
