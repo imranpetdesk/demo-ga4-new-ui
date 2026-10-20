@@ -119,6 +119,7 @@
         <h2>Page buttons</h2>
         <button id="test-host-button" type="button">Host Button (via script)</button>
         <button id="test-host-button-1" type="button">Host Button 1 (via gtm)</button>
+        <button id="test-host-button-2" type="button">Host Button 2 (direct push to dataLayer)</button>
         <button id="test-host-iframe-postmessage" class="postmessage" type="button">Host to iframe (postMessage)</button>
         <button id="test-host-wc-postmessage" class="postmessage" type="button">Host to web component (postMessage)</button>
 
@@ -127,6 +128,14 @@
             document.getElementById('test-host-button').addEventListener('click', function () {
                 gtag('event', 'test_host_button_click', {
                     button_id: 'test-host-button'
+                });
+            });
+
+            document.getElementById('test-host-button-2').addEventListener('click', function () {
+                window.dataLayer = window.dataLayer || [];
+                window.dataLayer.push({
+                    event: 'test_host_button_2_click',
+                    button_id: 'test-host-button-2'
                 });
             });
         </script>
