@@ -163,7 +163,7 @@
                 console.log('Pushed to dataLayer:', window.dataLayer);
             });
 
-            // Using postMessage to communicate with iframe and web component
+            // Web component and iframe send a message. The host pushes it to the data layer.
             window.addEventListener('message', function (event) {
                 if (!event.data || event.data.source === 'host') {
                     return;
@@ -171,7 +171,17 @@
                 if (event.data.source !== 'iframe' && event.data.source !== 'webcomponent') {
                     return;
                 }
-                console.log('host page received', event.data);
+                if (!window.dataLayer) {
+                    console.error('dataLayer is not defined');
+                    return;
+                }
+                window.dataLayer.push({
+                    event: event.data.event,
+                    button_id: event.data.button_id,
+                    source: event.data.source,
+                    data: event.data.data
+                });
+                console.log('host pushed to dataLayer', window.dataLayer);
             });
 
             // Post message to web component
@@ -206,7 +216,38 @@
                     data: payload.data
                 });
 
-                console.log('host dataLayer', window.dataLayer);
+                console.log('host pushed to dataLayer (host to web component)', window.dataLayer);
+            });
+
+            // Post message to iframe
+            document.getElementById('test-host-iframe-postmessage').addEventListener('click', function () {
+                var payload = {
+                    source: 'host',
+                    target: 'iframe',
+                    event: 'test_host_iframe_postmessage',
+                    button_id: 'test-host-iframe-postmessage',
+                    data: {
+                        clinic_id: '12345',
+                        client_hash: 'abcde12345',
+                        client_name: 'Example Client',
+                    }
+                };
+
+                // Send the message to the iframe
+                document.getElementById('test-iframe').contentWindow.postMessage(payload, '*');
+
+                if (!window.dataLayer) {
+                    console.error('dataLayer is not defined');
+                    return;
+                }
+
+                window.dataLayer.push({
+                    event: payload.event,
+                    button_id: payload.button_id,
+                    source: payload.source,
+                    data: payload.data
+                });
+                console.log('host pushed to dataLayer (host to iframe)', window.dataLayer);
             });
         </script>
     </section>
@@ -254,24 +295,8 @@
                             }
                         };
 
-                        // Send the message to the host page
+                        // The host page listens and pushes this message to the data layer.
                         window.postMessage(payload, '*');
-
-                        // Check if dataLayer is defined before pushing to it
-                        if (!window.dataLayer) {
-                            console.error('dataLayer is not defined');
-                            return;
-                        }
-
-                        // Push the event to the dataLayer
-                        window.dataLayer.push({
-                            event: payload.event,
-                            button_id: payload.button_id,
-                            source: payload.source,
-                            data: payload.data
-                        });
-
-                        console.log('web component sent data to dataLayer:', window.dataLayer);
                     });
 
                     // Listen for messages from the host page
@@ -321,25 +346,9 @@
                 'document.getElementById("test-iframe-postmessage").addEventListener("click", function () {',
                 '  var payload = { source: "iframe", event: "test_iframe_postmessage", button_id: "test-iframe-postmessage", data: { clinic_id: "12345", client_hash: "abcde12345", client_name: "Example Client" } };',
                 '  parent.postMessage(payload, "*");',
-                '  if (!parent.dataLayer) { console.error("dataLayer is not defined"); return; };',
-                '  parent.dataLayer.push({ event: payload.event, button_id: payload.button_id, data: payload.data });',
-                '  console.log("iframe sent data to dataLayer:", parent.dataLayer);',
-                '});',
-                'parent.document.getElementById("test-host-iframe-postmessage").addEventListener("click", function () {',
-                '  var payload = { source: "host", target: "iframe", event: "test_host_iframe_postmessage", button_id: "test-host-iframe-postmessage", data: { clinic_id: "12345", client_hash: "abcde12345", client_name: "Example Client" } };',
-                '  window.postMessage(payload, "*");',
-                '  if (!parent.dataLayer) { console.error("dataLayer is not defined"); return; };',
-                '  parent.dataLayer.push({ event: payload.event, button_id: payload.button_id, data: payload.data });',
-                '  console.log("host dataLayer", parent.dataLayer);',
                 '});',
                 'window.addEventListener("message", function (event) {',
                 '  if (!event.data) return;',
-                '  if (event.data.source === "iframe") {',
-                '    if (!parent.dataLayer) { console.error("dataLayer is not defined"); return; };',
-                '    parent.dataLayer.push({ event: event.data.event, button_id: event.data.button_id, data: event.data.data });',
-                '    console.log("iframe sent data to dataLayer:", parent.dataLayer);',
-                '    return;',
-                '  }',
                 '  if (event.data.source !== "host" || event.data.target !== "iframe") return;',
                 '  console.log("iframe received", event.data);',
                 '});',

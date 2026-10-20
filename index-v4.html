@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-3QJFC6QSL8"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-3QJFC6QSL8');
+    </script> -->
+
+    <!-- Google Tag Manager -->
+    <script>(function (w, d, s, l, i) {
+            w[l] = w[l] || []; w[l].push({
+                'gtm.start':
+                    new Date().getTime(), event: 'gtm.js'
+            }); var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-KCC8CQ4V');</script>
+    <!-- End Google Tag Manager -->
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>demo ga4 new ui</title>
+    <style>
+        :root {
+            --bg: #f3f5f8;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --accent: #1a73e8;
+            --accent-hover: #1558b0;
+            --border: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 32px 20px;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 1.5rem;
+        }
+
+        .subtitle {
+            margin: 0 0 24px;
+            color: var(--muted);
+        }
+
+        section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        section h2 {
+            margin: 0 0 14px;
+            font-size: 1.1rem;
+        }
+
+        button {
+            appearance: none;
+            border: 0;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin: 0 8px 8px 0;
+            background: var(--accent);
+            color: #fff;
+            font: inherit;
+            cursor: pointer;
+            display: block;
+        }
+
+        button:hover {
+            background: var(--accent-hover);
+        }
+
+        button.postmessage {
+            background: #7c3aed;
+        }
+
+        button.postmessage:hover {
+            background: #6d28d9;
+        }
+
+        test-ga-web-component {
+            display: block;
+        }
+
+        #test-iframe {
+            display: block;
+            width: 100%;
+            height: 160px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KCC8CQ4V" height="0" width="0"
+            style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <h1>GA4 demo</h1>
+    <p class="subtitle">Page buttons vs web component vs iframe</p>
+
+    <!-- Start host page -->
+    <section>
+        <h2>Host page buttons</h2>
+        <!-- <button id="test-host-button" type="button">Host Button (via script)</button> -->
+        <button id="test-host-button-1" type="button">Host Button 1 : gtm tag - button click (test-host-button-1)</button>
+        <button id="test-host-button-2" type="button">Host Button 2 : gtm tag - custom event (test_host_button_2_click)</button>
+        <button id="test-host-iframe-postmessage" class="postmessage" type="button">Host to iframe
+            (postMessage)</button>
+        <button id="test-host-wc-postmessage" class="postmessage" type="button">Host to web component
+            (postMessage)</button>
+
+        <!-- Using Google tag (Google Analytics 4) -->
+        <script>
+            // Log the dataLayer when the host page is loaded
+            window.addEventListener('load', (event) => {
+                console.log('host page loaded, dataLayer:', window.dataLayer);
+            });
+
+            // document.getElementById('test-host-button').addEventListener('click', function () {
+            //     gtag('event', 'test_host_button_click', {
+            //         button_id: 'test-host-button'
+            //     });
+            // });
+
+            // Using Google Tag Manager (GTM)
+            document.getElementById('test-host-button-2').addEventListener('click', function () {
+                // window.dataLayer = window.dataLayer || [];
+
+                // Check if dataLayer is defined before pushing to it
+                if (!window.dataLayer) {
+                    console.error('dataLayer is not defined');
+                    return;
+                }
+
+                window.dataLayer.push({
+                    event: 'test_host_button_2_click',
+                    button_id: 'test-host-button-2'
+                });
+
+                console.log('Pushed to dataLayer:', window.dataLayer);
+            });
+
+            // Using postMessage to communicate with iframe and web component
+            window.addEventListener('message', function (event) {
+                if (!event.data || event.data.source === 'host') {
+                    return;
+                }
+                if (event.data.source !== 'iframe' && event.data.source !== 'webcomponent') {
+                    return;
+                }
+                console.log('host page received', event.data);
+            });
+
+            // Post message to web component
+            document.getElementById('test-host-wc-postmessage').addEventListener('click', function () {
+                // Create a payload to send to the web component
+                let payload = {
+                    source: 'host',
+                    target: 'webcomponent',
+                    event: 'test_host_wc_postmessage',
+                    button_id: 'test-host-wc-postmessage',
+                    data: {
+                        clinic_id: '12345',
+                        clinic_hash: 'abcde12345',
+                        clinic_name: 'Example Clinic',
+                    }
+                };
+
+                // Send the message to the web component
+                window.postMessage(payload, '*');
+
+                // Check if dataLayer is defined before pushing to it
+                if (!window.dataLayer) {
+                    console.error('dataLayer is not defined');
+                    return;
+                }
+
+                // Push the event to the dataLayer
+                window.dataLayer.push({
+                    event: payload.event,
+                    button_id: payload.button_id,
+                    source: payload.source,
+                    data: payload.data
+                });
+
+                console.log('host dataLayer', window.dataLayer);
+            });
+        </script>
+    </section>
+    <!-- End host page -->
+
+
+    <!-- STart web component -->
+    <section>
+        <script>
+            class TestGaWebComponent extends HTMLElement {
+                constructor() {
+                    super();
+                    const shadow = this.attachShadow({ mode: 'open' });
+                    shadow.innerHTML = [
+                        '<style>',
+                        ':host { display: block; }',
+                        'h2 { margin: 0 0 14px; font-size: 1.1rem; color: #1f2937; }',
+                        'button { appearance: none; border: 0; border-radius: 8px; padding: 10px 14px; margin: 0 8px 8px 0; background: #1a73e8; color: #fff; font: inherit; cursor: pointer; }',
+                        'button:hover { background: #1558b0; }',
+                        '.steps { margin-top: 8px; }',
+                        'button.step { background: #0f9d58; }',
+                        'button.step:hover { background: #0b7a44; }',
+                        'button.postmessage { background: #7c3aed; }',
+                        'button.postmessage:hover { background: #6d28d9; }',
+                        '</style>',
+                        '<h2>Web component</h2>',
+                        '<button id="test-wc-postmessage" class="postmessage" type="button">WC to host (postMessage)</button>',
+                        '<div class="steps">',
+                        '<button id="test-wc-button-step-one" class="step" type="button">WC step one</button>',
+                        '<button id="test-wc-button-step-two" class="step" type="button">WC step two</button>',
+                        '</div>',
+                    ].join('');
+
+                    // Add event listener for the button click
+                    shadow.getElementById('test-wc-postmessage').addEventListener('click', function () {
+                        // Create a payload to send to the host page
+                        let payload = {
+                            source: 'webcomponent',
+                            event: 'test_wc_postmessage',
+                            button_id: 'test-wc-postmessage',
+                            data: {
+                                clinic_id: '12345',
+                                clinic_hash: 'abcde12345',
+                                clinic_name: 'Example Clinic',
+                            }
+                        };
+
+                        // Send the message to the host page
+                        window.postMessage(payload, '*');
+
+                        // Check if dataLayer is defined before pushing to it
+                        if (!window.dataLayer) {
+                            console.error('dataLayer is not defined');
+                            return;
+                        }
+
+                        // Push the event to the dataLayer
+                        window.dataLayer.push({
+                            event: payload.event,
+                            button_id: payload.button_id,
+                            source: payload.source,
+                            data: payload.data
+                        });
+
+                        console.log('web component sent data to dataLayer:', window.dataLayer);
+                    });
+
+                    // Listen for messages from the host page
+                    window.addEventListener('message', function (event) {
+                        if (!event.data || event.data.source === 'webcomponent') {
+                            return;
+                        }
+                        if (event.data.source !== 'host' || event.data.target !== 'webcomponent') {
+                            return;
+                        }
+                        console.log('web component received', event.data);
+                    });
+                }
+            }
+            customElements.define('test-ga-web-component', TestGaWebComponent);
+        </script>
+        <test-ga-web-component></test-ga-web-component>
+    </section>
+    <!-- End web component -->
+
+
+    <!-- Start Iframe -->
+    <section>
+        <h2>Iframe</h2>
+        <iframe id="test-iframe" title="Iframe buttons"></iframe>
+
+        <script>
+            var testIframe = document.getElementById('test-iframe');
+
+            testIframe.srcdoc = [
+                '<style>',
+                'body { margin: 0; font-family: system-ui, sans-serif; }',
+                'button { appearance: none; border: 0; border-radius: 8px; padding: 10px 14px; margin: 0 8px 8px 0; background: #1a73e8; color: #fff; font: inherit; cursor: pointer; }',
+                'button:hover { background: #1558b0; }',
+                '.steps { margin-top: 8px; }',
+                'button.step { background: #0f9d58; }',
+                'button.step:hover { background: #0b7a44; }',
+                'button.postmessage { background: #7c3aed; }',
+                'button.postmessage:hover { background: #6d28d9; }',
+                '</style>',
+                '<button id="test-iframe-postmessage" class="postmessage" type="button">Iframe to host (postMessage)</button>',
+                '<div class="steps">',
+                '<button id="test-iframe-button-step-one" class="step" type="button">Iframe step one</button>',
+                '<button id="test-iframe-button-step-two" class="step" type="button">Iframe step two</button>',
+                '</div>',
+                '<script>',
+                'document.getElementById("test-iframe-postmessage").addEventListener("click", function () {',
+                '  var payload = { source: "iframe", event: "test_iframe_postmessage", button_id: "test-iframe-postmessage", data: { clinic_id: "12345", client_hash: "abcde12345", client_name: "Example Client" } };',
+                '  parent.postMessage(payload, "*");',
+                '  if (!parent.dataLayer) { console.error("dataLayer is not defined"); return; };',
+                '  parent.dataLayer.push({ event: payload.event, button_id: payload.button_id, data: payload.data });',
+                '  console.log("iframe sent data to dataLayer:", parent.dataLayer);',
+                '});',
+                'parent.document.getElementById("test-host-iframe-postmessage").addEventListener("click", function () {',
+                '  var payload = { source: "host", target: "iframe", event: "test_host_iframe_postmessage", button_id: "test-host-iframe-postmessage", data: { clinic_id: "12345", client_hash: "abcde12345", client_name: "Example Client" } };',
+                '  window.postMessage(payload, "*");',
+                '  if (!parent.dataLayer) { console.error("dataLayer is not defined"); return; };',
+                '  parent.dataLayer.push({ event: payload.event, button_id: payload.button_id, data: payload.data });',
+                '  console.log("host dataLayer", parent.dataLayer);',
+                '});',
+                'window.addEventListener("message", function (event) {',
+                '  if (!event.data) return;',
+                '  if (event.data.source === "iframe") {',
+                '    if (!parent.dataLayer) { console.error("dataLayer is not defined"); return; };',
+                '    parent.dataLayer.push({ event: event.data.event, button_id: event.data.button_id, data: event.data.data });',
+                '    console.log("iframe sent data to dataLayer:", parent.dataLayer);',
+                '    return;',
+                '  }',
+                '  if (event.data.source !== "host" || event.data.target !== "iframe") return;',
+                '  console.log("iframe received", event.data);',
+                '});',
+                '<\/script>',
+            ].join('');
+        </script>
+    </section>
+    <!-- End Iframe -->
+
+</body>
+
+</html>
